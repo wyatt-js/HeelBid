@@ -33,6 +33,8 @@ npm install
 npm run dev
 ```
 
+You should delete the `/api` folder that is inside of the `/pages` directory.
+
 ## Installing Tools
 
 There are a few tools that need to be installed, which include:
@@ -48,6 +50,8 @@ To follow the Supabase JS Client, follow the tutorial [here](https://supabase.co
 ### Shadcn UI
 
 To install Shadcn UI, follow the instructions [here](https://ui.shadcn.com/docs/installation/next). This should also install Lucide icons. I recommend selecting the `New York` style with the `Zinc` color to start out with, but you are free to edit this or choose any options you would prefer for your project.
+
+*To set up light mode / dark mode in Shadcn, follow their official guide [here](https://ui.shadcn.com/docs/dark-mode/next).
 
 ## Set up Linting
 
