@@ -1,6 +1,6 @@
 # HeelBid
 
-> Developed by [Wyatt Smith, Shashank Vanga, Jayden Jang]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
+> Developed by [Wyatt Smith, Shashank Vanga, Jayden Jang, Jacob Gogel]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-05122A?style=flat&logo=typescript)
 ![Next.js](https://img.shields.io/badge/-Next.js-05122A?style=flat&logo=nextdotjs)

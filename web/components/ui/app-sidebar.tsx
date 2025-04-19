@@ -8,8 +8,10 @@ import {
   Plus,
   BadgeDollarSign,
   ChevronDown,
+  ChevronUp,
   User2,
-  Gavel
+  Gavel,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,6 +33,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const itemsBid = [
   {
@@ -80,6 +91,20 @@ const itemsAuctions = [
 
 export function AppSidebar() {
   const router = useRouter();
+  const [userName, setUserName] = useState<string | null>(null);
+  const supabase = createSupabaseComponentClient();
+
+  useEffect(() => {
+    async function getUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error);
+        return null;
+      }
+      setUserName(data.user.user_metadata.display_name);
+    }
+    getUser();
+  });
 
   return (
     <Sidebar collapsible="icon">
@@ -87,14 +112,12 @@ export function AppSidebar() {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-            >
-              <Link href={"/"}>
-                <Gavel />
-                <span>HeelBid</span>
-              </Link>
-            </SidebarMenuButton>
+              <SidebarMenuButton asChild>
+                <Link href={"/"}>
+                  <Gavel />
+                  <span>HeelBid</span>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
@@ -177,15 +200,32 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={router.pathname === "/profile"}
-            >
-              <Link href={"/profile"}>
-                <User2 />
-                <span>Username</span>
-              </Link>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 /> {userName}
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="end"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    router.push("/");
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <LogOut />
+                    Sign out
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
