@@ -6,6 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 
 type AuctionItem = {
@@ -47,6 +49,9 @@ export function AuctionCard({ auction }: { auction: AuctionItem }) {
             className="mt-4"
           />
         </div>
+        <Link href={`/auctions/${auction.id}`} className="block mt-4">
+          <Button className="w-full">Bid Now</Button>
+        </Link>
       </CardContent>
     </Card>
   );
