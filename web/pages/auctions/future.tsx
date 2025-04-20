@@ -8,7 +8,7 @@ export default function FutureAuctions({
   auctions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <div className="flex bg-card min-h-screen">
+    <div className="flex min-h-screen">
       <SidebarProvider className="w-1/5">
         <AppSidebar />
       </SidebarProvider>
@@ -16,7 +16,7 @@ export default function FutureAuctions({
         <div className="w-full p-8">
           <h1 className="text-3xl font-bold mb-2">Future Auctions</h1>
         </div>
-        <div className="w-full p-8 grid md:grid-cols-3 gap-4">
+        <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
           {auctions.map((auction) => (
             <AuctionCard key={auction.id} auction={auction} />
           ))}

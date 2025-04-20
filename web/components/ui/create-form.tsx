@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useRouter } from "next/router";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -267,8 +267,19 @@ export function CreateForm(id: { id: string }) {
             >
               Reset
             </Button>
-            <Button type="submit" className="w-1/8 bg-primary">
-              Submit
+            <Button
+              type="submit"
+              className="w-1/8 bg-primary"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
             </Button>
           </div>
         </form>
