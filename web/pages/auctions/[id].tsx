@@ -5,6 +5,7 @@ import { placeBid } from "@/utils/supabase/placeBid";
 import { BidListener } from "@/components/ui/bidListener";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 type AuctionItem = {
   id: string;
@@ -12,8 +13,8 @@ type AuctionItem = {
   description: string;
   price: number;
   end_time: string;
-  image_url?: string;
   state: string;
+  image_url?: string;
 };
 
 type Bid = {
@@ -31,7 +32,6 @@ export default function AuctionPage() {
   const [item, setItem] = useState<AuctionItem | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [amount, setAmount] = useState("");
-
   const supabase = createSupabaseComponentClient();
 
   useEffect(() => {
@@ -62,24 +62,44 @@ export default function AuctionPage() {
   const submitBid = async () => {
     const amt = parseFloat(amount);
     if (isNaN(amt) || amt <= currentBid) {
-      alert("Bid must be higher than the current bid.");
+      toast.error("Bid must be higher than the current bid.");
       return;
     }
 
     const { error } = await placeBid(itemId, amt);
+
     if (error) {
-      alert("Failed to place bid: " + error.message);
+      toast.error(
+        typeof error === "string" ? error : error?.message || "Unknown error"
+      );
     } else {
       setAmount("");
+
+      const { data: userData } = await supabase.auth.getUser();
+      setBids((prev) => [
+        {
+          id: crypto.randomUUID(),
+          item_id: itemId,
+          bidder_id: userData?.user?.id || "me",
+          amount: amt,
+          created_at: new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+
+      toast.success(`Your bid of $${amt.toFixed(2)} was submitted!`);
     }
   };
 
   const handleNewBid = (newBid: Bid) => {
-    setBids((prev) => [newBid, ...prev]);
-    alert(`New Bid Placed: $${newBid.amount.toFixed(2)}`);
+    setBids((prev) => {
+      const alreadyExists = prev.some((bid) => bid.id === newBid.id);
+      if (alreadyExists) return prev;
+      return [newBid, ...prev];
+    });
   };
 
-  if (!item) return <div className="p-6">Loading...</div>;
+  if (!item) return <div className="p-6">Loading auction...</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -94,6 +114,7 @@ export default function AuctionPage() {
       <div className="flex gap-3 items-end">
         <Input
           type="number"
+          min="0"
           value={amount}
           placeholder="Enter bid"
           onChange={(e) => setAmount(e.target.value)}
@@ -106,7 +127,12 @@ export default function AuctionPage() {
         <ul className="space-y-1 text-sm">
           {bids.map((bid) => (
             <li key={bid.id} className="border px-4 py-2 rounded">
-              ${bid.amount.toFixed(2)} — {new Date(bid.created_at).toLocaleTimeString()}
+              ${bid.amount.toFixed(2)} —{" "}
+              {new Date(bid.created_at).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+              })}
             </li>
           ))}
         </ul>
