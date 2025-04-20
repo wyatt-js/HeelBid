@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useRouter } from "next/router";
