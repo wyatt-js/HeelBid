@@ -54,16 +54,13 @@ export function AuctionCard({ auction }: { auction: AuctionItem }) {
           </div>
         </div>
         <div className="flex justify-center mt-4">
-          <button
-            className="w-full bg-accent text-white py-2 px-4 rounded hover:bg-ring"
+        <Button
+            className="w-full"
             onClick={() => router.push(`/auctions/${auction.id}`)}
           >
-            Details
-          </button>
+            Bid Now
+          </Button>
         </div>
-        <Link href={`/auctions/${auction.id}`} className="block mt-4">
-          <Button className="w-full">Bid Now</Button>
-        </Link>
       </CardContent>
     </Card>
   );
