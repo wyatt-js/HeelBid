@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
+import { useRouter } from "next/router";
 
 type AuctionItem = {
   id: string;
@@ -22,13 +23,14 @@ type AuctionItem = {
 };
 
 export function AuctionCard({ auction }: { auction: AuctionItem }) {
+  const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const publicUrl = supabase.storage
     .from("auction-images")
     .getPublicUrl("/" + auction.image_url).data.publicUrl;
 
   return (
-    <Card key={auction.id}>
+    <Card key={auction.id} className="gap-0">
       <CardHeader>
         <CardTitle>{auction.name}</CardTitle>
         <CardDescription>{auction.description}</CardDescription>
@@ -40,14 +42,24 @@ export function AuctionCard({ auction }: { auction: AuctionItem }) {
             {auction.duration}:00
           </p>
         </div>
-        <div className="flex justify-center items-center">
-          <Image
-            src={publicUrl}
-            alt={auction.name}
-            width={200}
-            height={200}
-            className="mt-4"
-          />
+        <div className="flex items-center justify-center">
+          <div className="mt-4 w-[300px] h-[200px] overflow-hidden">
+            <Image
+              src={publicUrl}
+              alt={auction.name}
+              width={300}
+              height={200}
+              className="w-[300px] h-[200px] object-cover"
+            />
+          </div>
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            className="w-full bg-accent text-white py-2 px-4 rounded hover:bg-ring"
+            onClick={() => router.push(`/auctions/${auction.id}`)}
+          >
+            Details
+          </button>
         </div>
         <Link href={`/auctions/${auction.id}`} className="block mt-4">
           <Button className="w-full">Bid Now</Button>
