@@ -1,9 +1,17 @@
 import { createSupabaseServerClient } from "@/utils/supabase/create-server-client";
 import { GetServerSidePropsContext } from "next";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/auctions/ongoing");
+  }, [router]);
+
   return (
     <div className="flex justify-center items-center bg-background">
       <SidebarProvider className="w-1/5">
