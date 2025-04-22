@@ -41,7 +41,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const { data: auctions, error: auctionsError } = await supabase
     .from("auction_item")
-    .select("*, bid(*)")
+    .select("*, bid!inner(*)")
     .eq("bid.bidder_id", userData.user.id);
 
   if (auctionsError) {
