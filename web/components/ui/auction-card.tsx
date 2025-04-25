@@ -21,7 +21,13 @@ type AuctionItem = {
   image_url: string;
 };
 
-export function AuctionCard({ auction }: { auction: AuctionItem }) {
+export function AuctionCard({
+  auction,
+  noBid,
+}: {
+  auction: AuctionItem;
+  noBid: boolean;
+}) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const publicUrl = supabase.storage
@@ -52,14 +58,16 @@ export function AuctionCard({ auction }: { auction: AuctionItem }) {
             />
           </div>
         </div>
-        <div className="flex justify-center mt-4">
-        <Button
-            className="w-full"
-            onClick={() => router.push(`/auctions/${auction.id}`)}
-          >
-            Bid Now
-          </Button>
-        </div>
+        {!noBid ? (
+          <div className="flex justify-center mt-4">
+            <Button
+              className="w-full"
+              onClick={() => router.push(`/auctions/${auction.id}`)}
+            >
+              Bid Now
+            </Button>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

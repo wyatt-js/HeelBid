@@ -243,11 +243,11 @@ export function CreateForm(id: { id: string }) {
                         form.setValue("image", file);
                       }}
                       onDragOver={(e) => e.preventDefault()}
-                      className="border-dashed border-2 border-secondary rounded-lg w-full h-[200px] flex items-center justify-center transition-colors"
+                      className="border-dashed border-2 border-secondary rounded-lg w-full h-[200px] flex items-center justify-center transition-colors gap-4"
                     >
                       <Upload className="h-8 w-8 text-gray-500 dark:text-gray-400" />
                       <span className="text-gray-500 text-sm dark:text-gray-400">
-                        Drag and drop your files here
+                        Drag and drop your image here
                       </span>
                     </div>
                     <FormMessage />
