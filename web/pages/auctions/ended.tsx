@@ -18,7 +18,7 @@ export default function EndedAuctions({
         </div>
         <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
           {auctions.map((auction) => (
-            <AuctionCard key={auction.id} auction={auction} noBid={false} />
+            <AuctionCard key={auction.id} auction={auction} noBid={true} />
           ))}
         </div>
       </div>

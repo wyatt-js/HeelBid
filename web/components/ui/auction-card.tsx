@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useRouter } from "next/router";
-import { AuctionDetailModal } from "./auction-detail"
+import { AuctionDetailModal } from "./auction-detail";
 
 export type AuctionItem = {
   id: string;
@@ -65,17 +65,20 @@ export function AuctionCard({
             </div>
           </CardContent>
         </div>
-<<<<<<< HEAD
         <CardContent>
-          <Button
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation(); // prevent card click
-              router.push(`/auctions/${auction.id}`);
-            }}
-          >
-            Bid Now
-          </Button>
+          {!noBid ? (
+            <div className="flex justify-center mt-4">
+              <Button
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/auctions/${auction.id}`);
+                }}
+              >
+                Bid Now
+              </Button>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -85,30 +88,5 @@ export function AuctionCard({
         onOpenChange={setOpen}
       />
     </>
-=======
-        <div className="flex items-center justify-center">
-          <div className="mt-4 w-[300px] h-[200px] overflow-hidden">
-            <Image
-              src={publicUrl}
-              alt={auction.name}
-              width={300}
-              height={200}
-              className="w-[300px] h-[200px] object-cover"
-            />
-          </div>
-        </div>
-        {!noBid ? (
-          <div className="flex justify-center mt-4">
-            <Button
-              className="w-full"
-              onClick={() => router.push(`/auctions/${auction.id}`)}
-            >
-              Bid Now
-            </Button>
-          </div>
-        ) : null}
-      </CardContent>
-    </Card>
->>>>>>> d2ecd80aba7a38ba2eaee2bdc1d69cbbcc23d223
   );
 }
