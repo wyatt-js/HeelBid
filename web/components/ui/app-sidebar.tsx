@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronUp,
   User2,
-  Gavel,
   LogOut,
 } from "lucide-react";
 import {
@@ -42,6 +41,7 @@ import {
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useEffect } from "react";
 import { useState } from "react";
+import { MonoLogo } from "@/components/ui/mono-logo";
 
 const itemsBid = [
   {
@@ -110,12 +110,17 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarHeader>
-          <SidebarMenu>
+          <SidebarMenu className="mt-4">
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton size="lg" asChild>
                 <Link href={"/"}>
-                  <Gavel />
-                  <span>HeelBid</span>
+                  <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-xl">
+                    <MonoLogo />
+                  </div>
+                  <div className="hidden md:flex flex-col pt-1 pl-1">
+                    <span className="font-bold">HeelBid</span>
+                    <span>Hi, {userName}</span>
+                  </div>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

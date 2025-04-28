@@ -3,6 +3,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AuctionCard } from "@/components/ui/auction-card";
+import { HeelbidLogo } from "@/components/ui/heelbid-logo";
 
 export default function FutureAuctions({
   auctions,
@@ -13,8 +14,9 @@ export default function FutureAuctions({
         <AppSidebar />
       </SidebarProvider>
       <div className="w-full">
-        <div className="w-full p-8">
-          <h1 className="text-3xl font-bold mb-2">Future Auctions</h1>
+        <div className="w-full p-10 pt-4 pb-4 flex justify-between">
+          <h1 className="text-3xl pt-7 font-bold">Future Auctions</h1>
+          <HeelbidLogo />
         </div>
         <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
           {auctions.map((auction) => (
