@@ -1,12 +1,18 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import Image from "next/image";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { AuctionItem} from "./auction-card";
+import type { AuctionItem } from "./auction-card";
 import { placeBid } from "@/utils/supabase/placeBid";
 type Props = {
-  auction: AuctionItem & {imageUrl: string};
+  auction: AuctionItem & { imageUrl: string };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };

@@ -70,7 +70,7 @@ export default function AuctionPage() {
 
     if (error) {
       toast.error(
-        typeof error === "string" ? error : error?.message || "Unknown error"
+        typeof error === "string" ? error : error?.message || "Unknown error",
       );
     } else {
       setAmount("");

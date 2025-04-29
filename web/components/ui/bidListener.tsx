@@ -31,7 +31,7 @@ export function BidListener({
         },
         (payload) => {
           onNewBid(payload.new as Bid);
-        }
+        },
       )
       .subscribe();
 
