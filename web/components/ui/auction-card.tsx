@@ -21,6 +21,7 @@ export type AuctionItem = {
   duration: number;
   state: string;
   image_url: string;
+  start_time: string;
 };
 
 export function AuctionCard({
@@ -31,6 +32,14 @@ export function AuctionCard({
   noBid: boolean;
 }) {
   const router = useRouter();
+  const startTime = new Date(auction.start_time);
+  const endTime = new Date(startTime.getTime() + auction.duration * 60 * 1000);
+  const now = new Date();
+  const msLeft = endTime.getTime() - now.getTime();
+
+  const minutesLeft = Math.max(Math.floor(msLeft / 60000), 0);
+  const secondsLeft = Math.max(Math.floor((msLeft % 60000) / 1000), 0);
+
   const supabase = createSupabaseComponentClient();
   const publicUrl = supabase.storage
     .from("auction-images")
@@ -49,7 +58,7 @@ export function AuctionCard({
             <div className="flex justify-between items-center">
               <p className="mt-2 font-semibold">${auction.price}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {auction.duration}:00
+              {minutesLeft}:{secondsLeft.toString().padStart(2, "0")} remaining
               </p>
             </div>
             <div className="flex items-center justify-center">

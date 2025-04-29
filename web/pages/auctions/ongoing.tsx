@@ -30,7 +30,35 @@ export default function OngoingAuctions({
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createSupabaseServerClient(context);
+  const now = new Date();
 
+  // ✅ Step 1: Move FUTURE → ONGOING
+  await supabase
+    .from("auction_item")
+    .update({ state: "ongoing" })
+    .lte("start_time", now.toISOString())
+    .eq("state", "future");
+
+  // ✅ Step 2: Move ONGOING → COMPLETED if duration expired
+  const { data: ongoingAuctions } = await supabase
+    .from("auction_item")
+    .select("id, start_time, duration")
+    .eq("state", "ongoing");
+
+  for (const auction of ongoingAuctions || []) {
+    const start = new Date(auction.start_time);
+    const durationMs = auction.duration * 60 * 1000;
+    const end = new Date(start.getTime() + durationMs);
+
+    if (end <= now) {
+      await supabase
+        .from("auction_item")
+        .update({ state: "completed" })
+        .eq("id", auction.id);
+    }
+  }
+
+  // ✅ Step 3: Auth check
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData) {
     return {
@@ -41,6 +69,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
+  // ✅ Step 4: Fetch active Ongoing Auctions
   const { data: auctions, error: auctionsError } = await supabase
     .from("auction_item")
     .select("*")
