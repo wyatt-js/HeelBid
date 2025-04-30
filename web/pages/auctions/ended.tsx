@@ -4,12 +4,20 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AuctionCard } from "@/components/ui/auction-card";
 import { HeelbidLogo } from "@/components/ui/heelbid-logo";
+import Head from "next/head";
 
 export default function EndedAuctions({
   auctions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className="flex min-h-screen">
+      <Head>
+        <title>Ended Auctions | HeelBid</title>
+        <meta
+          name="description"
+          content="Browse all ongoing past actions on HeelBid."
+        />
+      </Head>
       <SidebarProvider className="w-1/5">
         <AppSidebar />
       </SidebarProvider>

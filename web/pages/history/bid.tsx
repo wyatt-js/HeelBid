@@ -41,17 +41,24 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  const { data: auctions, error: auctionsError } = await supabase
-    .from("auction_item")
-    .select("*, bid!inner(*)")
-    .eq("bid.bidder_id", userData.user.id);
+  const { data: bids, error: bidsError } = await supabase
+    .from("bid")
+    .select("*, auction_item(*)")
+    .eq("bidder_id", userData.user.id);
 
-  if (auctionsError) {
-    console.error("Error fetching auctions:", auctionsError.message);
+  if (bidsError) {
+    console.error("Error fetching bid history:", bidsError.message);
     return {
       props: { auctions: [] },
     };
   }
+
+  const auctions = (bids || []).map((bid) => ({
+    ...bid.auction_item,
+    bidAmount: bid.amount ?? null,
+    bidTime: bid.inserted_at ?? null, 
+  }));
+  
 
   return {
     props: { auctions },

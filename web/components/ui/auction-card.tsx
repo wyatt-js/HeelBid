@@ -22,6 +22,8 @@ export type AuctionItem = {
   state: string;
   image_url: string;
   start_time: string;
+  bidAmount?: number;
+  bidTime?: string;
 };
 
 export function AuctionCard({
@@ -75,20 +77,30 @@ export function AuctionCard({
           </CardContent>
         </div>
         <CardContent>
-          {!noBid ? (
-            <div className="flex justify-center mt-4">
-              <Button
-                className="w-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/auctions/${auction.id}`);
-                }}
-              >
-                Bid Now
-              </Button>
-            </div>
-          ) : null}
-        </CardContent>
+  {!noBid ? (
+    <div className="flex justify-center mt-4">
+      <Button
+        className="w-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          router.push(`/auctions/${auction.id}`);
+        }}
+      >
+        Bid Now
+      </Button>
+    </div>
+  ) : (
+    <>
+      {auction.bidAmount && auction.bidTime && (
+        <p className="text-sm text-muted-foreground mt-2 text-center">
+          Your bid: ${auction.bidAmount} on{" "}
+          {new Date(auction.bidTime).toLocaleString()}
+        </p>
+      )}
+    </>
+  )}
+</CardContent>
+
       </Card>
 
       <AuctionDetailModal

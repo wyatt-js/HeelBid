@@ -4,12 +4,20 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AuctionCard } from "@/components/ui/auction-card";
 import { HeelbidLogo } from "@/components/ui/heelbid-logo";
+import Head from "next/head";
 
 export default function OngoingAuctions({
   auctions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className="flex min-h-screen">
+    <Head>
+        <title>Ongoing Auctions | HeelBid</title>
+        <meta
+          name="description"
+          content="Browse all ongoing auctions currently active on HeelBid. Place your bids before time runs out!"
+        />
+      </Head>
       <SidebarProvider className="w-1/5">
         <AppSidebar />
       </SidebarProvider>
@@ -32,14 +40,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createSupabaseServerClient(context);
   const now = new Date();
 
-  // ✅ Step 1: Move FUTURE → ONGOING
   await supabase
     .from("auction_item")
     .update({ state: "ongoing" })
     .lte("start_time", now.toISOString())
     .eq("state", "future");
 
-  // ✅ Step 2: Move ONGOING → COMPLETED if duration expired
   const { data: ongoingAuctions } = await supabase
     .from("auction_item")
     .select("id, start_time, duration")
@@ -58,7 +64,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
   }
 
-  // ✅ Step 3: Auth check
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData) {
     return {
@@ -69,7 +74,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  // ✅ Step 4: Fetch active Ongoing Auctions
   const { data: auctions, error: auctionsError } = await supabase
     .from("auction_item")
     .select("*")
