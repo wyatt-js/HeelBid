@@ -9,7 +9,6 @@ export function HeelbidLogo() {
         width="92"
         height="91"
         viewBox="0 0 92 91"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path

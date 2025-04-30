@@ -4,8 +4,17 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { Switch } from "@/components/ui/switch";
 import { HeelbidLogo } from "@/components/ui/heelbid-logo";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function Settings() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       <SidebarProvider className="w-1/5">
@@ -21,13 +30,15 @@ export default function Settings() {
             <label htmlFor="dark-mode" className="mr-4">
               Dark Mode
             </label>
-            <Switch id="dark-mode" checked={true} disabled={true} />
-          </div>
-          <div className="flex items-center">
-            <label htmlFor="notifications" className="mr-4">
-              Notifications
-            </label>
-            <Switch id="notifications" checked={true} disabled={true} />
+            {mounted && (
+              <Switch
+                id="dark-mode"
+                checked={resolvedTheme === "dark"}
+                onCheckedChange={(checked) =>
+                  setTheme(checked ? "dark" : "light")
+                }
+              />
+            )}
           </div>
         </div>
       </div>
