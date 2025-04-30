@@ -6,6 +6,7 @@ import { BidListener } from "@/components/ui/bidListener";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useViewerCount } from "@/hooks/useViewerCount";
 
 type AuctionItem = {
   id: string;
@@ -33,6 +34,8 @@ export default function AuctionPage() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [amount, setAmount] = useState("");
   const supabase = createSupabaseComponentClient();
+
+  const viewerCount = useViewerCount(itemId);
 
   useEffect(() => {
     if (!itemId) return;
@@ -105,6 +108,10 @@ export default function AuctionPage() {
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">{item.name}</h1>
       <p className="text-muted-foreground">{item.description}</p>
+
+      <p className="text-sm text-muted-foreground">
+        👀 {viewerCount} {viewerCount === 1 ? "person is" : "people are"} viewing this auction
+      </p>
 
       <div className="border p-4 rounded bg-background shadow">
         <h2 className="text-lg font-medium mb-2">Current Highest Bid</h2>
