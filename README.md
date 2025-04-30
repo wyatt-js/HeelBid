@@ -30,3 +30,6 @@ Provides users with a personalized log of their auction activity. Users can see 
 
 <h3><b>Authentication<b></h3>
 Uses secure sign-up and login functionality (Supabase Auth) to register users and manage sessions. Each user has a profile containing display name, avatar, and username. Authentication is required to bid, list, and view personal auction history.
+
+<h3><b>Live Viewer Count</b></h3> 
+Displays the number of users currently viewing each auction in real-time. This feature helps create a sense of urgency and competition by showing bidders how many others are interested in the same item. Viewer data updates live without requiring a page refresh.
