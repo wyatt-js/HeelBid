@@ -55,8 +55,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const auctions = (bids || []).map((bid) => ({
     ...bid.auction_item,
-    bidAmount: bid.amount ?? null,
-    bidTime: bid.inserted_at ?? null, 
+    bidAmount: bid.amount,
+    bidTime: bid.created_at,
   }));
   
 
