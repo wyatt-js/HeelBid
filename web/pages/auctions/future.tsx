@@ -4,12 +4,20 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AuctionCard } from "@/components/ui/auction-card";
 import { HeelbidLogo } from "@/components/ui/heelbid-logo";
+import Head from "next/head";
 
 export default function FutureAuctions({
   auctions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className="flex min-h-screen">
+      <Head>
+        <title>Future Auctions | HeelBid</title>
+        <meta
+          name="description"
+          content="Browse all future auctions currently active on HeelBid. Place your bids once the auction starts!"
+        />
+      </Head>
       <SidebarProvider className="w-1/5">
         <AppSidebar />
       </SidebarProvider>
