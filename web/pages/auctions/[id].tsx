@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useViewerCount } from "@/hooks/useViewerCount";
+import { useBidUpdates } from "@/hooks/useBidUpdates";
+
 
 type AuctionItem = {
   id: string;
@@ -32,6 +34,14 @@ export default function AuctionPage() {
 
   const [item, setItem] = useState<AuctionItem | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
+  useBidUpdates(itemId, (newBid) => {
+    setBids((prev) => {
+      const alreadyExists = prev.some((bid) => bid.id === newBid.id);
+      if (alreadyExists) return prev;
+      return [newBid, ...prev];
+    });
+  });
+  
   const [amount, setAmount] = useState("");
   const supabase = createSupabaseComponentClient();
 
@@ -116,9 +126,13 @@ export default function AuctionPage() {
     setBids((prev) => {
       const alreadyExists = prev.some((bid) => bid.id === newBid.id);
       if (alreadyExists) return prev;
+  
+      toast.success(`New bid placed: $${newBid.amount.toFixed(2)}`);
       return [newBid, ...prev];
     });
   };
+  
+  useBidUpdates(itemId, handleNewBid); 
 
   if (!item) return <div className="p-6">Loading auction...</div>;
 
