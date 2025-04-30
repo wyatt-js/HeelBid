@@ -45,13 +45,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  const { data: notifications, error: auctionsError } = await supabase
-    .from("bid")
+  const { data: notifications, error: notifError } = await supabase
+    .from("notification")
     .select("*")
-    .eq("bidder_id", userData.user.id);
+    .eq("user_id", userData.user.id)
+    .order("created_at", { ascending: false });
 
-  if (auctionsError) {
-    console.error("Error fetching notifications:", auctionsError.message);
+  if (notifError) {
+    console.error("Error fetching notifications:", notifError.message);
     return {
       props: { notifications: [] },
     };
