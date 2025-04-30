@@ -205,32 +205,32 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <User2 /> {userName}
-                  <ChevronUp className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                align="end"
-                className="w-[--radix-popper-anchor-width]"
-              >
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    router.push("/");
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    <LogOut />
-                    Sign out
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SidebarMenuButton className="w-full">
+            <User2 />
+            <span className="ml-2 truncate">{userName}</span>
+            <ChevronUp className="ml-auto" />
+          </SidebarMenuButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          side="top"
+          sideOffset={8}
+          className="w-[200px]"
+        >
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/");
+            }}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
