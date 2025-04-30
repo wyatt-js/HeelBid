@@ -52,7 +52,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { data: auctions, error: auctionsError } = await supabase
     .from("auction_item")
     .select("*")
-    .eq("state", "ended");
+    .eq("state", "completed");
 
   if (auctionsError) {
     console.error("Error fetching auctions:", auctionsError.message);

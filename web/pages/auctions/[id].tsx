@@ -60,6 +60,24 @@ export default function AuctionPage() {
     fetchData();
   }, [itemId]);
 
+  // Viewer tracking logic
+  useEffect(() => {
+    if (!itemId) return;
+
+    const registerViewer = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      await supabase.from("auction_viewer").upsert({
+        user_id: userData?.user?.id || null,
+        auction_id: itemId,
+        expires_at: new Date(Date.now() + 30000).toISOString(),
+      });
+    };
+
+    registerViewer();
+    const interval = setInterval(registerViewer, 25000);
+    return () => clearInterval(interval);
+  }, [itemId]);
+
   const currentBid = bids[0]?.amount || item?.price || 0;
 
   const submitBid = async () => {
@@ -73,7 +91,7 @@ export default function AuctionPage() {
 
     if (error) {
       toast.error(
-        typeof error === "string" ? error : error?.message || "Unknown error",
+        typeof error === "string" ? error : error?.message || "Unknown error"
       );
     } else {
       setAmount("");
@@ -134,7 +152,7 @@ export default function AuctionPage() {
         <ul className="space-y-1 text-sm">
           {bids.map((bid) => (
             <li key={bid.id} className="border px-4 py-2 rounded">
-              ${bid.amount.toFixed(2)} —{" "}
+              ${bid.amount.toFixed(2)} — {" "}
               {new Date(bid.created_at).toLocaleTimeString([], {
                 hour: "numeric",
                 minute: "numeric",
