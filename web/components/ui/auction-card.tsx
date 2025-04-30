@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useRouter } from "next/router";
 import { AuctionDetailModal } from "./auction-detail";
+import { useBidUpdates } from "@/hooks/useBidUpdates";
 
 export type AuctionItem = {
   id: string;
@@ -35,26 +36,53 @@ export function AuctionCard({
 }) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
+
   const publicUrl = supabase.storage
     .from("auction-images")
     .getPublicUrl("/" + auction.image_url).data.publicUrl;
 
-  const [clientTime, setClientTime] = useState<Date | null>(null);
-  const [open, setOpen] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState(auction.price);
 
   useEffect(() => {
-    setClientTime(new Date());
+    const fetchHighestBid = async () => {
+      const { data } = await supabase
+        .from("bid")
+        .select("amount")
+        .eq("item_id", auction.id)
+        .order("amount", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.amount && data.amount > auction.price) {
+        setCurrentPrice(data.amount);
+      }
+    };
+
+    fetchHighestBid();
+  }, [auction.id, auction.price, supabase]);
+
+  useBidUpdates(auction.id, (newBid) => {
+    if (newBid.amount > currentPrice) {
+      setCurrentPrice(newBid.amount);
+    }
+  });
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const start = new Date(auction.start_time);
+    const end = new Date(start.getTime() + auction.duration * 60 * 1000);
+    return end.getTime() - new Date().getTime();
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => Math.max(prev - 1000, 0));
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  let timeRemaining = "";
-  if (clientTime) {
-    const startTime = new Date(auction.start_time);
-    const endTime = new Date(startTime.getTime() + auction.duration * 60 * 1000);
-    const msLeft = endTime.getTime() - clientTime.getTime();
-    const minutesLeft = Math.max(Math.floor(msLeft / 60000), 0);
-    const secondsLeft = Math.max(Math.floor((msLeft % 60000) / 1000), 0);
-    timeRemaining = `${minutesLeft}:${secondsLeft.toString().padStart(2, "0")} remaining`;
-  }
+  const minutesLeft = Math.floor(timeLeft / 60000);
+  const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -66,10 +94,10 @@ export function AuctionCard({
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <p className="mt-2 font-semibold">${auction.price}</p>
-              {clientTime && (
-                <p className="mt-2 text-sm text-muted-foreground">{timeRemaining}</p>
-              )}
+              <p className="mt-2 font-semibold">${currentPrice}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {minutesLeft}:{secondsLeft.toString().padStart(2, "0")} remaining
+              </p>
             </div>
             <div className="flex items-center justify-center">
               <div className="mt-4 w-[300px] h-[200px] overflow-hidden">
@@ -99,7 +127,8 @@ export function AuctionCard({
               </Button>
             </div>
           ) : (
-            auction.bidAmount && auction.bidTime && (
+            auction.bidAmount &&
+            auction.bidTime && (
               <p className="text-sm text-muted-foreground mt-2 text-center">
                 Your bid: ${auction.bidAmount} on{" "}
                 {new Date(auction.bidTime).toLocaleString()}

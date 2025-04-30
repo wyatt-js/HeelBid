@@ -24,7 +24,7 @@ export function useBidUpdates(itemId: string, onNewBid: (bid: Bid) => void) {
           filter: `item_id=eq.${itemId}`,
         },
         (payload) => {
-          onNewBid(payload.new as Bid); // 👈 cast payload.new properly
+          onNewBid(payload.new as Bid);
         }
       )
       .subscribe();
