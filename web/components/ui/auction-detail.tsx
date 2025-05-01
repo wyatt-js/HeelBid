@@ -15,9 +15,7 @@ import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-c
 import { useBidUpdates } from "@/hooks/useBidUpdates";
 
 type Props = {
-  auction: AuctionItem & {
-    imageUrl: string;
-  };
+  auction: AuctionItem & { imageUrl: string };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -27,14 +25,16 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
   const [status, setStatus] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(auction.duration * 60);
-  const [highestBid, setHighestBid] = useState<number>(auction.price);
+  const [highestBid, setHighestBid] = useState<number | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [hasEnded, setHasEnded] = useState<boolean>(false);
 
   const supabase = createSupabaseComponentClient();
 
   useBidUpdates(auction.id, (newBid) => {
-    setHighestBid((prev) => (newBid.amount > prev ? newBid.amount : prev));
+    setHighestBid((prev) =>
+      prev === null || newBid.amount > prev ? newBid.amount : prev
+    );
   });
 
   type TopBid = {
@@ -96,7 +96,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
       setStatus("Please enter a valid number.");
       return;
     }
-    if (bid <= highestBid) {
+    if (highestBid !== null && bid <= highestBid) {
       setStatus("Bid must be higher than current highest.");
       return;
     }
@@ -141,7 +141,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
         />
 
         <div className="text-sm text-muted-foreground mb-2">
-          Current Bid: ${highestBid} | Time Left: {formatTime(timeLeft)}
+          Current Bid: ${highestBid ?? "Loading..."} | Time Left: {formatTime(timeLeft)}
         </div>
 
         {timeLeft > 0 ? (
@@ -152,7 +152,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
             />
-            <Button onClick={handlePlaceBid} disabled={loading}>
+            <Button onClick={handlePlaceBid} disabled={loading || highestBid === null}>
               {loading ? "Placing Bid..." : "Place Bid"}
             </Button>
             {status && (
