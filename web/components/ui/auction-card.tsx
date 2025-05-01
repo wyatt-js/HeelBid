@@ -73,6 +73,34 @@ export function AuctionCard({
     fetchBidder();
   }, [auction.id, supabase]);
 
+  useEffect(() => {
+    const fetchInitialBid = async () => {
+      const { data: topBid, error } = await supabase
+        .from("bid")
+        .select("amount, bidder_id")
+        .eq("item_id", auction.id)
+        .order("amount", { ascending: false })
+        .limit(1)
+        .single();
+  
+      if (!error && topBid) {
+        setCurrentPrice(topBid.amount);
+  
+        const { data: bidderData, error: bidderError } = await supabase
+          .from("profile")
+          .select("username")
+          .eq("id", topBid.bidder_id)
+          .single();
+  
+        if (!bidderError && bidderData) {
+          setBidder(bidderData.username);
+        }
+      }
+    };
+  
+    fetchInitialBid();
+  }, [auction.id, supabase]);
+
   useBidUpdates(auction.id, async (newBid) => {
     setCurrentPrice((prev) => {
       if (newBid.amount > prev) {
