@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { useViewerCount } from "@/hooks/useViewerCount";
 import { useBidUpdates } from "@/hooks/useBidUpdates";
 
-
 type AuctionItem = {
   id: string;
   name: string;
@@ -29,7 +28,7 @@ type Bid = {
 };
 
 export default function AuctionPage() {
-  const { query } = useRouter();
+  const { query, push } = useRouter();
   const itemId = query.id as string;
 
   const [item, setItem] = useState<AuctionItem | null>(null);
@@ -41,7 +40,7 @@ export default function AuctionPage() {
       return [newBid, ...prev];
     });
   });
-  
+
   const [amount, setAmount] = useState("");
   const supabase = createSupabaseComponentClient();
 
@@ -126,58 +125,67 @@ export default function AuctionPage() {
     setBids((prev) => {
       const alreadyExists = prev.some((bid) => bid.id === newBid.id);
       if (alreadyExists) return prev;
-  
+
       toast.success(`New bid placed: $${newBid.amount.toFixed(2)}`);
       return [newBid, ...prev];
     });
   };
-  
-  useBidUpdates(itemId, handleNewBid); 
+
+  useBidUpdates(itemId, handleNewBid);
 
   if (!item) return <div className="p-6">Loading auction...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">{item.name}</h1>
-      <p className="text-muted-foreground">{item.description}</p>
+    <>
+      <div className="mb-4 p-8"></div>
+      <div className="max-w-2xl mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">{item.name}</h1>
+          <Button onClick={() => push("/auctions/ongoing")}>
+            ← Back to Auctions
+          </Button>
+        </div>
+        <p className="text-muted-foreground">{item.description}</p>
 
-      <p className="text-sm text-muted-foreground">
-        👀 {viewerCount} {viewerCount === 1 ? "person is" : "people are"} viewing this auction
-      </p>
+        <p className="text-sm text-muted-foreground">
+          👀 {viewerCount} {viewerCount === 1 ? "person is" : "people are"}{" "}
+          viewing this auction
+        </p>
 
-      <div className="border p-4 rounded bg-background shadow">
-        <h2 className="text-lg font-medium mb-2">Current Highest Bid</h2>
-        <p className="text-3xl font-bold">${currentBid.toFixed(2)}</p>
+        <div className="border p-4 rounded bg-background shadow">
+          <h2 className="text-lg font-medium mb-2">Current Highest Bid</h2>
+          <p className="text-3xl font-bold">${currentBid.toFixed(2)}</p>
+        </div>
+
+        <div className="flex gap-3 items-end">
+          <Input
+            type="number"
+            min="0"
+            value={amount}
+            placeholder="Enter bid"
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <Button onClick={submitBid}>Place Bid</Button>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-sm mt-6 mb-2">Recent Bids</h3>
+          <ul className="space-y-1 text-sm">
+            {bids.map((bid) => (
+              <li key={bid.id} className="border px-4 py-2 rounded">
+                ${bid.amount.toFixed(2)} —{" "}
+                {new Date(bid.created_at).toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "numeric",
+                  second: "numeric",
+                })}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <BidListener itemId={itemId} onNewBid={handleNewBid} />
       </div>
-
-      <div className="flex gap-3 items-end">
-        <Input
-          type="number"
-          min="0"
-          value={amount}
-          placeholder="Enter bid"
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <Button onClick={submitBid}>Place Bid</Button>
-      </div>
-
-      <div>
-        <h3 className="font-semibold text-sm mt-6 mb-2">Recent Bids</h3>
-        <ul className="space-y-1 text-sm">
-          {bids.map((bid) => (
-            <li key={bid.id} className="border px-4 py-2 rounded">
-              ${bid.amount.toFixed(2)} — {" "}
-              {new Date(bid.created_at).toLocaleTimeString([], {
-                hour: "numeric",
-                minute: "numeric",
-                second: "numeric",
-              })}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <BidListener itemId={itemId} onNewBid={handleNewBid} />
-    </div>
+    </>
   );
 }

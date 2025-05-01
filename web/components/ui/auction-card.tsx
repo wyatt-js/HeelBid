@@ -43,10 +43,42 @@ export function AuctionCard({
   const [currentPrice, setCurrentPrice] = useState(auction.price);
   const [clientTime, setClientTime] = useState<Date | null>(null);
   const [open, setOpen] = useState(false);
+  const [bidder, setBidder] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBidder = async () => {
+      const { data: highestBidder, error } = await supabase
+        .from("bid")
+        .select("bidder_id")
+        .eq("item_id", auction.id)
+        .order("amount", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.error("Error fetching highest bidder:", error);
+      } else {
+        const { data: bidderData, error: bidderError } = await supabase
+          .from("profile")
+          .select("username")
+          .eq("id", highestBidder.bidder_id)
+          .single();
+
+        if (bidderError) {
+          console.error("Error fetching bidder data:", bidderError);
+        } else {
+          setBidder(bidderData.username);
+        }
+      }
+    };
+
+    fetchBidder();
+  }, [auction.id, supabase]);
 
   useBidUpdates(auction.id, (newBid) => {
     if (newBid.amount > currentPrice) {
       setCurrentPrice(newBid.amount);
+      setBidder(newBid.bidder_id);
     }
   });
 
@@ -60,11 +92,15 @@ export function AuctionCard({
   let timeRemaining = "";
   if (clientTime) {
     const startTime = new Date(auction.start_time);
-    const endTime = new Date(startTime.getTime() + auction.duration * 60 * 1000);
+    const endTime = new Date(
+      startTime.getTime() + auction.duration * 60 * 1000
+    );
     const msLeft = endTime.getTime() - clientTime.getTime();
     const minutesLeft = Math.max(Math.floor(msLeft / 60000), 0);
     const secondsLeft = Math.max(Math.floor((msLeft % 60000) / 1000), 0);
-    timeRemaining = `${minutesLeft}:${secondsLeft.toString().padStart(2, "0")} remaining`;
+    timeRemaining = `${minutesLeft}:${secondsLeft
+      .toString()
+      .padStart(2, "0")} remaining`;
   }
 
   return (
@@ -78,8 +114,20 @@ export function AuctionCard({
           <CardContent>
             <div className="flex justify-between items-center">
               <p className="mt-2 font-semibold">${currentPrice}</p>
-              {clientTime && (
-                <p className="mt-2 text-sm text-muted-foreground">{timeRemaining}</p>
+              {auction.state === "future" ? (
+                <p className="text-sm text-muted-foreground">
+                  Starts on {new Date(auction.start_time).toLocaleString()}
+                </p>
+              ) : auction.state === "completed" ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Won By: {bidder}
+                </p>
+              ) : (
+                clientTime && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {timeRemaining}
+                  </p>
+                )
               )}
             </div>
             <div className="flex items-center justify-center">
@@ -96,26 +144,25 @@ export function AuctionCard({
           </CardContent>
         </div>
         <CardContent>
-  {!noBid ? (
-    <div className="flex justify-center mt-4">
-      <Button
-        className="w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          router.push(`/auctions/${auction.id}`);
-        }}
-      >
-        Bid Now
-      </Button>
-    </div>
-  ) : auction.bidAmount && auction.bidTime ? (
-    <p className="text-sm text-muted-foreground mt-2 text-center">
-      Your bid: ${auction.bidAmount} on{" "}
-      {new Date(auction.bidTime).toLocaleString()}
-    </p>
-  ) : null}
-</CardContent>
-
+          {!noBid ? (
+            <div className="flex justify-center mt-4">
+              <Button
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/auctions/${auction.id}`);
+                }}
+              >
+                Bid Now
+              </Button>
+            </div>
+          ) : auction.bidAmount && auction.bidTime ? (
+            <p className="text-sm text-muted-foreground mt-2 text-center">
+              Your bid: ${auction.bidAmount} on{" "}
+              {new Date(auction.bidTime).toLocaleString()}
+            </p>
+          ) : null}
+        </CardContent>
       </Card>
 
       <AuctionDetailModal
