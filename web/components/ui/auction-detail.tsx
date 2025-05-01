@@ -6,7 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { AuctionItem } from "./auction-card";
@@ -37,30 +37,33 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     setHighestBid((prev) => (newBid.amount > prev ? newBid.amount : prev));
   });
 
-  const fetchHighestBid = async (updateWinner = false) => {
-    type HighestBidResponse = {
-      amount: number;
-      bidder_id: string;
-      profiles: {
-        display_name: string;
-      } | null;
-    };
+  const fetchHighestBid = useCallback(
+    async (updateWinner = false) => {
+      type HighestBidResponse = {
+        amount: number;
+        bidder_id: string;
+        profiles: {
+          display_name: string;
+        } | null;
+      };
 
-    const { data, error } = await supabase
-      .from("bid")
-      .select("amount, bidder_id, profiles(display_name)")
-      .eq("item_id", auction.id)
-      .order("amount", { ascending: false })
-      .limit(1)
-      .single<HighestBidResponse>();
+      const { data, error } = await supabase
+        .from("bid")
+        .select("amount, bidder_id, profiles(display_name)")
+        .eq("item_id", auction.id)
+        .order("amount", { ascending: false })
+        .limit(1)
+        .single<HighestBidResponse>();
 
-    if (!error && data) {
-      setHighestBid(data.amount);
-      if (updateWinner) {
-        setWinner(data.profiles?.display_name || data.bidder_id);
+      if (!error && data) {
+        setHighestBid(data.amount);
+        if (updateWinner) {
+          setWinner(data.profiles?.display_name || data.bidder_id);
+        }
       }
-    }
-  };
+    },
+    [supabase, auction.id]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -82,13 +85,13 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [open]);
+  }, [open, fetchHighestBid, auction.start_time, auction.duration]);
 
   useEffect(() => {
     if (hasEnded) {
-      fetchHighestBid(true); 
+      fetchHighestBid(true);
     }
-  }, [hasEnded]);
+  }, [hasEnded, fetchHighestBid]);
 
   const handlePlaceBid = async () => {
     const bid = Number(bidAmount);
