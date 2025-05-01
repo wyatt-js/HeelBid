@@ -37,38 +37,35 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     setHighestBid((prev) => (newBid.amount > prev ? newBid.amount : prev));
   });
 
-  const fetchHighestBid = useCallback(
-    async (updateWinner = false) => {
-      type HighestBidResponse = {
-        amount: number;
-        bidder_id: string;
-        profiles: {
-          display_name: string;
-        } | null;
-      };
+  type TopBid = {
+    bidder_id: string;
+    profile: {
+      display_name: string;
+    } | null;
+    amount: number;
+  };
 
-      const { data, error } = await supabase
-        .from("bid")
-        .select("amount, bidder_id, profiles(display_name)")
-        .eq("item_id", auction.id)
-        .order("amount", { ascending: false })
-        .limit(1)
-        .single<HighestBidResponse>();
+  const fetchWinnerName = useCallback(async () => {
+    const { data: topBid, error } = await supabase
+      .from("bid")
+      .select("bidder_id, amount, profile:profiles(display_name)")
+      .eq("item_id", auction.id)
+      .order("amount", { ascending: false })
+      .limit(1)
+      .single<TopBid>();
 
-      if (!error && data) {
-        setHighestBid(data.amount);
-        if (updateWinner) {
-          setWinner(data.profiles?.display_name || data.bidder_id);
-        }
-      }
-    },
-    [supabase, auction.id]
-  );
+    if (!error && topBid) {
+      setHighestBid(topBid.amount);
+      setWinner(topBid.profile?.display_name || topBid.bidder_id);
+    } else {
+      console.error("Error fetching winner info:", error);
+    }
+  }, [auction.id, supabase]);
 
   useEffect(() => {
     if (!open) return;
 
-    fetchHighestBid();
+    fetchWinnerName();
 
     const start = new Date(auction.start_time).getTime();
     const end = start + auction.duration * 60 * 1000;
@@ -85,13 +82,13 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [open, fetchHighestBid, auction.start_time, auction.duration]);
+  }, [open, auction.start_time, auction.duration, fetchWinnerName]);
 
   useEffect(() => {
     if (hasEnded) {
-      fetchHighestBid(true);
+      fetchWinnerName();
     }
-  }, [hasEnded, fetchHighestBid]);
+  }, [hasEnded, fetchWinnerName]);
 
   const handlePlaceBid = async () => {
     const bid = Number(bidAmount);
@@ -107,7 +104,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     setLoading(true);
     const { error } = await placeBid(auction.id, bid);
     if (!error) {
-      await fetchHighestBid(); 
+      await fetchWinnerName();
     }
     setLoading(false);
 
