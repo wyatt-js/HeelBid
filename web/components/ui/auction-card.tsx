@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
 import { useRouter } from "next/router";
-import { AuctionDetailModal } from "./auction-detail";
 import { useBidUpdates } from "@/hooks/useBidUpdates";
 
 export type AuctionItem = {
@@ -42,7 +41,6 @@ export function AuctionCard({
 
   const [currentPrice, setCurrentPrice] = useState(auction.price);
   const [clientTime, setClientTime] = useState<Date | null>(null);
-  const [open, setOpen] = useState(false);
   const [bidder, setBidder] = useState<string | null>(null);
 
   useEffect(() => {
@@ -76,19 +74,23 @@ export function AuctionCard({
   }, [auction.id, supabase]);
 
   useBidUpdates(auction.id, async (newBid) => {
-    if (newBid.amount > currentPrice) {
-      setCurrentPrice(newBid.amount);
-      const { data: bidderData, error: bidderError } = await supabase
-        .from("profile")
-        .select("username")
-        .eq("id", newBid.bidder_id)
-        .single();
-
-      if (!bidderError && bidderData) {
-        setBidder(bidderData.username);
-      } else {
-        console.error("Error fetching new bidder's username:", bidderError);
+    setCurrentPrice((prev) => {
+      if (newBid.amount > prev) {
+        return newBid.amount;
       }
+      return prev;
+    });
+
+    const { data: bidderData, error: bidderError } = await supabase
+      .from("profile")
+      .select("username")
+      .eq("id", newBid.bidder_id)
+      .single();
+
+    if (!bidderError && bidderData) {
+      setBidder(bidderData.username);
+    } else {
+      console.error("Error fetching new bidder's username:", bidderError);
     }
   });
 
@@ -116,43 +118,41 @@ export function AuctionCard({
   return (
     <>
       <Card className="gap-0 cursor-pointer">
-        <div onClick={() => setOpen(true)}>
-          <CardHeader>
-            <CardTitle>{auction.name}</CardTitle>
-            <CardDescription>{auction.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <p className="mt-2 font-semibold">${currentPrice}</p>
-              {auction.state === "future" ? (
-                <p className="text-sm text-muted-foreground">
-                  Starts on {new Date(auction.start_time).toLocaleString()}
-                </p>
-              ) : auction.state === "completed" ? (
+        <CardHeader>
+          <CardTitle>{auction.name}</CardTitle>
+          <CardDescription>{auction.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center">
+            <p className="mt-2 font-semibold">${currentPrice}</p>
+            {auction.state === "future" ? (
+              <p className="text-sm text-muted-foreground">
+                Starts on {new Date(auction.start_time).toLocaleString()}
+              </p>
+            ) : auction.state === "completed" ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Won By: {bidder}
+              </p>
+            ) : (
+              clientTime && (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Won By: {bidder}
+                  {timeRemaining}
                 </p>
-              ) : (
-                clientTime && (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {timeRemaining}
-                  </p>
-                )
-              )}
+              )
+            )}
+          </div>
+          <div className="flex items-center justify-center">
+            <div className="mt-4 w-[300px] h-[200px] overflow-hidden">
+              <Image
+                src={publicUrl}
+                alt={auction.name}
+                width={300}
+                height={200}
+                className="w-[300px] h-[200px] object-cover"
+              />
             </div>
-            <div className="flex items-center justify-center">
-              <div className="mt-4 w-[300px] h-[200px] overflow-hidden">
-                <Image
-                  src={publicUrl}
-                  alt={auction.name}
-                  width={300}
-                  height={200}
-                  className="w-[300px] h-[200px] object-cover"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </div>
+          </div>
+        </CardContent>
         <CardContent>
           {!noBid ? (
             <div className="flex justify-center mt-4">
@@ -174,12 +174,6 @@ export function AuctionCard({
           ) : null}
         </CardContent>
       </Card>
-
-      <AuctionDetailModal
-        auction={{ ...auction, imageUrl: publicUrl }}
-        open={open}
-        onOpenChange={setOpen}
-      />
     </>
   );
 }

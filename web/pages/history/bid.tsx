@@ -53,12 +53,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  const auctions = (bids || []).map((bid) => ({
-    ...bid.auction_item,
-    bidAmount: bid.amount,
-    bidTime: bid.created_at,
-  }));
-  
+  const auctions = (bids || [])
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .map((bid) => ({
+      ...bid.auction_item,
+      bidAmount: bid.amount,
+      bidTime: bid.created_at,
+    }));
 
   return {
     props: { auctions },

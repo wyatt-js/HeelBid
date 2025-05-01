@@ -39,8 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createSupabaseComponentClient } from "@/utils/supabase/create-browser-client";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MonoLogo } from "@/components/ui/mono-logo";
 
 const itemsBid = [
@@ -99,12 +98,12 @@ export function AppSidebar() {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
         console.error("Error fetching user:", error);
-        return null;
+        return;
       }
       setUserName(data.user.user_metadata.display_name);
     }
     getUser();
-  });
+  }, []);
 
   return (
     <Sidebar collapsible="icon">
@@ -113,7 +112,7 @@ export function AppSidebar() {
           <SidebarMenu className="mt-4">
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
-                <Link href={"/"}>
+                <Link href="/">
                   <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-xl">
                     <MonoLogo />
                   </div>
@@ -126,6 +125,7 @@ export function AppSidebar() {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
+
         <SidebarGroup>
           <SidebarGroupLabel>Bid</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -202,35 +202,38 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="relative overflow-visible">
         <SidebarMenu>
           <SidebarMenuItem>
-          <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center w-full px-3 py-2 rounded hover:bg-muted transition">
-                <User2 className="mr-2" />
-                <span className="truncate">{userName}</span>
-                <ChevronUp className="ml-auto" />
-            </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          side="top"
-          sideOffset={8}
-          className="w-[200px]"
-        >
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/");
-            }}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="w-full">
+                  <User2 />
+                  <span className="ml-2 truncate">{userName}</span>
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                side="top"
+                sideOffset={8}
+                className="w-[200px]"
+                asChild={false}
+                forceMount
+              >
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    router.push("/");
+                  }}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
