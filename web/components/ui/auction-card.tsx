@@ -75,10 +75,20 @@ export function AuctionCard({
     fetchBidder();
   }, [auction.id, supabase]);
 
-  useBidUpdates(auction.id, (newBid) => {
+  useBidUpdates(auction.id, async (newBid) => {
     if (newBid.amount > currentPrice) {
       setCurrentPrice(newBid.amount);
-      setBidder(newBid.bidder_id);
+      const { data: bidderData, error: bidderError } = await supabase
+        .from("profile")
+        .select("username")
+        .eq("id", newBid.bidder_id)
+        .single();
+
+      if (!bidderError && bidderData) {
+        setBidder(bidderData.username);
+      } else {
+        console.error("Error fetching new bidder's username:", bidderError);
+      }
     }
   });
 

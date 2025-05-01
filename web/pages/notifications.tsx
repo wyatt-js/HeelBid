@@ -49,7 +49,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .from("notification")
     .select("*")
     .eq("user_id", userData.user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (notifError) {
     console.error("Error fetching notifications:", notifError.message);

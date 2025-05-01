@@ -25,6 +25,9 @@ type Bid = {
   bidder_id: string;
   amount: number;
   created_at: string;
+  profile?: {
+    username: string;
+  };
 };
 
 export default function AuctionPage() {
@@ -33,13 +36,6 @@ export default function AuctionPage() {
 
   const [item, setItem] = useState<AuctionItem | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
-  useBidUpdates(itemId, (newBid) => {
-    setBids((prev) => {
-      const alreadyExists = prev.some((bid) => bid.id === newBid.id);
-      if (alreadyExists) return prev;
-      return [newBid, ...prev];
-    });
-  });
 
   const [amount, setAmount] = useState("");
   const supabase = createSupabaseComponentClient();
@@ -58,7 +54,7 @@ export default function AuctionPage() {
 
       const { data: bidData } = await supabase
         .from("bid")
-        .select("*")
+        .select("*, profile(username)")
         .eq("item_id", itemId)
         .order("amount", { ascending: false });
 
@@ -104,30 +100,26 @@ export default function AuctionPage() {
       );
     } else {
       setAmount("");
-
-      const { data: userData } = await supabase.auth.getUser();
-      setBids((prev) => [
-        {
-          id: crypto.randomUUID(),
-          item_id: itemId,
-          bidder_id: userData?.user?.id || "me",
-          amount: amt,
-          created_at: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-
       toast.success(`Your bid of $${amt.toFixed(2)} was submitted!`);
     }
   };
 
-  const handleNewBid = (newBid: Bid) => {
-    setBids((prev) => {
-      const alreadyExists = prev.some((bid) => bid.id === newBid.id);
-      if (alreadyExists) return prev;
+  const handleNewBid = async (newBid: Bid) => {
+    const { data: profileData } = await supabase
+      .from("profile")
+      .select("username")
+      .eq("id", newBid.bidder_id)
+      .single();
 
-      toast.success(`New bid placed: $${newBid.amount.toFixed(2)}`);
-      return [newBid, ...prev];
+    const enrichedBid: Bid = {
+      ...newBid,
+      profile: { username: profileData?.username || "Unknown" },
+    };
+
+    setBids((prev) => {
+      const alreadyExists = prev.some((bid) => bid.id === enrichedBid.id);
+      if (alreadyExists) return prev;
+      return [enrichedBid, ...prev];
     });
   };
 
@@ -178,7 +170,15 @@ export default function AuctionPage() {
                   hour: "numeric",
                   minute: "numeric",
                   second: "numeric",
-                })}
+                })}{" "}
+                -{" "}
+                {bid.bidder_id === "me" ? (
+                  <span className="text-green-500 font-semibold">You</span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {bid.profile?.username || bid.bidder_id}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -137,7 +137,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
           alt={auction.name}
           width={400}
           height={250}
-          className="object-cover w-full h-auto mb-4"
+          className="object-cover w-full h-[450px] mb-4"
         />
 
         <div className="text-sm text-muted-foreground mb-2">
@@ -167,7 +167,7 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
           </div>
         ) : (
           <p className="text-center mt-4 text-green-600">
-            Auction ended. {winner ? `Winner: ${winner}` : "No bids placed."}
+            Auction ended. {winner ? `Winner: ${winner}` : "No bids allowed."}
           </p>
         )}
       </DialogContent>
