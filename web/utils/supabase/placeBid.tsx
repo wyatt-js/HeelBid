@@ -35,10 +35,34 @@ export async function placeBid(itemId: string, amount: number) {
     return { error: bidError };
   }
 
+  const { data: auctionData, error: itemErr } = await supabase
+    .from("auction_item")
+    .select("name")
+    .eq("id", itemId)
+    .single();
+
+  if (itemErr || !auctionData) {
+    return { error: itemErr || "Item not found." };
+  }
+
+  const auctionName = auctionData.name;
+
+  const { data: overtakeData, error: overtakeError } = await supabase
+    .from("profile")
+    .select("username")
+    .eq("id", previousHighestBid.bidder_id)
+    .single();
+
+  if (overtakeError || !overtakeData) {
+    return { error: itemErr || "Item not found." };
+  }
+
+  const overtakeName = overtakeData.username;
+
   if (previousHighestBid && previousHighestBid.bidder_id !== user.id) {
     await sendNotification(
       previousHighestBid.bidder_id,
-      `You were outbid on an item!`
+      `You were outbid on "${auctionName}" by ${overtakeName}!`
     );
   }
 
