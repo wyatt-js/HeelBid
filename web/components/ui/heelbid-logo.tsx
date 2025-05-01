@@ -44,8 +44,8 @@ export function HeelbidLogo() {
             y2="83.414"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#03C5E6" />
-            <stop offset="0.89" stop-color="#0266E2" />
+            <stop stopColor="#03C5E6" />
+            <stop offset="0.89" stopColor="#0266E2" />
           </linearGradient>
         </defs>
       </svg>
