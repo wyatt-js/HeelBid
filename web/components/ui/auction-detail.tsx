@@ -6,7 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { AuctionItem } from "./auction-card";
@@ -33,33 +33,34 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
 
   const supabase = createSupabaseComponentClient();
 
-  const fetchHighestBid = useCallback(
-    async (updateWinner = false) => {
-      type HighestBidResponse = {
-        amount: number;
-        bidder_id: string;
-        profiles: {
-          display_name: string;
-        } | null;
-      };
+  useBidUpdates(auction.id, (newBid) => {
+    setHighestBid((prev) => (newBid.amount > prev ? newBid.amount : prev));
+  });
 
-      const { data, error } = await supabase
-        .from("bid")
-        .select("amount, bidder_id, profiles(display_name)")
-        .eq("item_id", auction.id)
-        .order("amount", { ascending: false })
-        .limit(1)
-        .single<HighestBidResponse>();
+  const fetchHighestBid = async (updateWinner = false) => {
+    type HighestBidResponse = {
+      amount: number;
+      bidder_id: string;
+      profiles: {
+        display_name: string;
+      } | null;
+    };
 
-      if (!error && data) {
-        setHighestBid(data.amount);
-        if (updateWinner) {
-          setWinner(data.profiles?.display_name || data.bidder_id);
-        }
+    const { data, error } = await supabase
+      .from("bid")
+      .select("amount, bidder_id, profiles(display_name)")
+      .eq("item_id", auction.id)
+      .order("amount", { ascending: false })
+      .limit(1)
+      .single<HighestBidResponse>();
+
+    if (!error && data) {
+      setHighestBid(data.amount);
+      if (updateWinner) {
+        setWinner(data.profiles?.display_name || data.bidder_id);
       }
-    },
-    [supabase, auction.id]
-  );
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -81,17 +82,13 @@ export function AuctionDetailModal({ auction, open, onOpenChange }: Props) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [open, fetchHighestBid, auction.start_time, auction.duration]);
+  }, [open]);
 
   useEffect(() => {
     if (hasEnded) {
-      fetchHighestBid(true);
+      fetchHighestBid(true); 
     }
-  }, [hasEnded, fetchHighestBid]);
-
-  useBidUpdates(auction.id, (newBid) => {
-    setHighestBid((prev) => (newBid.amount > prev ? newBid.amount : prev));
-  });
+  }, [hasEnded]);
 
   const handlePlaceBid = async () => {
     const bid = Number(bidAmount);
