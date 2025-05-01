@@ -207,13 +207,13 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="w-full">
-                  <User2 />
-                  <span className="ml-2 truncate">{userName}</span>
-                  <ChevronUp className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center w-full px-3 py-2 rounded hover:bg-muted transition">
+                <User2 className="mr-2" />
+                <span className="truncate">{userName}</span>
+                <ChevronUp className="ml-auto" />
+              </button>
+            </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
                 side="top"
