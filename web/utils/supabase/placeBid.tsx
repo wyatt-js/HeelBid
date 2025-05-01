@@ -47,22 +47,10 @@ export async function placeBid(itemId: string, amount: number) {
 
   const auctionName = auctionData.name;
 
-  const { data: overtakeData, error: overtakeError } = await supabase
-    .from("profile")
-    .select("username")
-    .eq("id", highestBids?.[0].bidder_id)
-    .single();
-
-  if (overtakeError || !overtakeData) {
-    return { error: overtakeError || "Item not found." };
-  }
-
-  const overtakeName = overtakeData.username;
-
   if (previousHighestBid && previousHighestBid.bidder_id !== user.id) {
     await sendNotification(
       previousHighestBid.bidder_id,
-      `You were outbid on "${auctionName}" by ${overtakeName}!`
+      `You were outbid on "${auctionName}"!`
     );
   }
 
