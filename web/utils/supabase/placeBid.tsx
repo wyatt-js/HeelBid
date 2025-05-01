@@ -50,11 +50,11 @@ export async function placeBid(itemId: string, amount: number) {
   const { data: overtakeData, error: overtakeError } = await supabase
     .from("profile")
     .select("username")
-    .eq("id", previousHighestBid?.bidder_id)
+    .eq("id", highestBids[0].bidder_id)
     .single();
 
   if (overtakeError || !overtakeData) {
-    return { error: itemErr || "Item not found." };
+    return { error: overtakeError || "Item not found." };
   }
 
   const overtakeName = overtakeData.username;
