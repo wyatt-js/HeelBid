@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { createSupabaseServerClient } from "@/utils/supabase/create-server-client";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -8,27 +9,36 @@ export default function Notifications({
   notifications,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <div className="flex min-h-screen">
-      <SidebarProvider className="w-1/5">
-        <AppSidebar />
-      </SidebarProvider>
-      <div className="w-full">
-        <div className="w-full p-10 pt-4 pb-4 flex justify-between">
-          <h1 className="text-3xl pt-7 font-bold">Notifications</h1>
-          <HeelbidLogo />
-        </div>
-        <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
-          {notifications.map((notification) => (
-            <div key={notification.id} className="border p-4 rounded">
-              <h2 className="text-xl font-bold">{notification.content}</h2>
-              <p className="text-sm text-gray-500">
-                {new Date(notification.created_at).toLocaleString()}
-              </p>
-            </div>
-          ))}
+    <>
+      <Head>
+        <title>Notifications | HeelBid</title>
+        <meta
+          name="description"
+          content="Check your recent notifications, including outbids, wins, and new auction alerts."
+        />
+      </Head>
+      <div className="flex min-h-screen">
+        <SidebarProvider className="w-1/5">
+          <AppSidebar />
+        </SidebarProvider>
+        <div className="w-full">
+          <div className="w-full p-10 pt-4 pb-4 flex justify-between">
+            <h1 className="text-3xl pt-7 font-bold">Notifications</h1>
+            <HeelbidLogo />
+          </div>
+          <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
+            {notifications.map((notification) => (
+              <div key={notification.id} className="border p-4 rounded">
+                <h2 className="text-xl font-bold">{notification.content}</h2>
+                <p className="text-sm text-gray-500">
+                  {new Date(notification.created_at).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

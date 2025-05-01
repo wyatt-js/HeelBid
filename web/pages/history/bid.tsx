@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { createSupabaseServerClient } from "@/utils/supabase/create-server-client";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -9,22 +10,31 @@ export default function BidHistory({
   auctions,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <div className="flex min-h-screen">
-      <SidebarProvider className="w-1/5">
-        <AppSidebar />
-      </SidebarProvider>
-      <div className="w-full">
-        <div className="w-full p-10 pt-4 pb-4 flex justify-between">
-          <h1 className="text-3xl pt-7 font-bold">Bid History</h1>
-          <HeelbidLogo />
-        </div>
-        <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
-          {auctions.map((auction) => (
-            <AuctionCard key={auction.id} auction={auction} noBid={true} />
-          ))}
+    <>
+      <Head>
+        <title>Bid History | HeelBid</title>
+        <meta
+          name="description"
+          content="Review your personal bidding history on HeelBid. See your past bids, outcomes, and timestamps in one convenient place."
+        />
+      </Head>
+      <div className="flex min-h-screen">
+        <SidebarProvider className="w-1/5">
+          <AppSidebar />
+        </SidebarProvider>
+        <div className="w-full">
+          <div className="w-full p-10 pt-4 pb-4 flex justify-between">
+            <h1 className="text-3xl pt-7 font-bold">Bid History</h1>
+            <HeelbidLogo />
+          </div>
+          <div className="w-full p-8 pt-0 grid md:grid-cols-3 gap-4">
+            {auctions.map((auction) => (
+              <AuctionCard key={auction.id} auction={auction} noBid={true} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
