@@ -1,6 +1,6 @@
 # HeelBid
 
-> Developed by [Wyatt Smith, Shashank Vanga, Jayden Jang, Jacob Gogel]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
+> Developed by [Wyatt Smith, Shashank Vanga, Jayden Jang]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-05122A?style=flat&logo=typescript)
 ![Next.js](https://img.shields.io/badge/-Next.js-05122A?style=flat&logo=nextdotjs)
@@ -16,7 +16,6 @@ Welcome to HeelBid! A realtime auction website where users can buy and sell item
 ## Features
 
 <h3><b>Live Bidding<b></h3>
-
 This feature allows users to place bids on items in real-time. The UI will display the current highest bid, along with the entire bid history of the users. Users should also be able to place a completely new bid at any instant.
 
 <h3><b>Live product listing<b></h3>
